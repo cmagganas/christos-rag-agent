@@ -1,5 +1,5 @@
 chainlit==0.6.2
-langchain
+langchain==0.0.265
 tiktoken==0.4.0
 openai==0.27.8
 bs4
