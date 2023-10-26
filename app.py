@@ -1,9 +1,10 @@
 import chainlit as cl
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.document_loaders.csv_loader import CSVLoader
-from langchain.embeddings import CacheBackedEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings, OpenAIEmbeddings
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import FAISS
+from langchain.vectorstores import Chroma #, FAISS
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 from langchain.storage import LocalFileStore
@@ -14,22 +15,29 @@ from langchain.prompts.chat import (
 )
 import chainlit as cl
 
-import build_langchain_vector_store
+from build_langchain_vector_store import chunk_docs, load_gitbook_docs, tiktoken_len
 
-build_langchain_vector_store
-
-from langchain.vectorstores import Chroma
-from langchain.embeddings import OpenAIEmbeddings
 import openai
-import os
+# import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.api_base = 'https://api.openai.com/v1' # default
 
+docs_url = "https://docs.pulze.ai/"
 embedding_model_name = "text-embedding-ada-002"
+langchain_documents = load_gitbook_docs(docs_url)
+chunked_langchain_documents = chunk_docs(
+    langchain_documents,
+    tokenizer=encoding_for_model(embedding_model_name),
+    chunk_size=200,
+)
+
 embedding_model = OpenAIEmbeddings(model=embedding_model_name)
+shutil.rmtree(args.persist_path, ignore_errors=True)
+vector_store = Chroma.from_documents(
+    chunked_langchain_documents, embedding=embedding_model, persist_directory=args.persist_path
+)
 read_vector_store = Chroma(
-        persist_directory="langchain-chroma-pulze-docs", embedding_function=embedding_model
-    )
-query_results = read_vector_store.similarity_search("How do I use Pulze?")
-print(query_results[0].page_content)
+    persist_directory=args.persist_path, embedding_function=embedding_model
+)
+print(read_vector_store.similarity_search("How do I use Pulze?"))
