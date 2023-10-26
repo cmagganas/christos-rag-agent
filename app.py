@@ -72,6 +72,6 @@ async def main(message):
         stream_final_answer=False, answer_prefix_tokens=["FINAL", "ANSWER"]
     )
     cb.answer_reached = True
-    answer = chain.run({"input": message})
+    answer = chain({"input": message})
 
     await cl.Message(content=answer["output"]).send()
