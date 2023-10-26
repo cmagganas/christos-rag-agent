@@ -14,6 +14,6 @@ from langchain.prompts.chat import (
 )
 import chainlit as cl
 
-import build_langchain_vector_store
+from . import build_langchain_vector_store
 
 build_langchain_vector_store.py
