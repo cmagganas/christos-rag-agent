@@ -74,4 +74,4 @@ async def main(message):
     cb.answer_reached = True
     answer = chain({"input": message})
 
-    await cl.Message(content=answer["output"]).send()
+    await cl.Message(content=answer).send()
