@@ -16,6 +16,7 @@ from langchain.prompts.chat import (
 import chainlit as cl
 
 from build_langchain_vector_store import chunk_docs, load_gitbook_docs, tiktoken_len
+from tiktoken import Encoding, encoding_for_model
 
 import openai
 # import os
@@ -33,11 +34,10 @@ chunked_langchain_documents = chunk_docs(
 )
 
 embedding_model = OpenAIEmbeddings(model=embedding_model_name)
-shutil.rmtree(args.persist_path, ignore_errors=True)
 vector_store = Chroma.from_documents(
-    chunked_langchain_documents, embedding=embedding_model, persist_directory=args.persist_path
+    chunked_langchain_documents, embedding=embedding_model, persist_directory="langchain-chroma-pulze-docs"
 )
 read_vector_store = Chroma(
-    persist_directory=args.persist_path, embedding_function=embedding_model
+    persist_directory="langchain-chroma-pulze-docs", embedding_function=embedding_model
 )
 print(read_vector_store.similarity_search("How do I use Pulze?"))
