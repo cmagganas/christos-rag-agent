@@ -18,7 +18,7 @@ openai.api_base = "https://api.openai.com/v1"  # default
 
 @cl.on_chat_start
 async def start_chat():
-    index_building_notification = cl.Message(content="Building Index...")
+    index_building_message = cl.Message(content="Building Index...")
     await index_building_message.send()
 
     docs_url = "https://docs.pulze.ai/"
@@ -41,8 +41,8 @@ async def start_chat():
         embedding_function=embedding_model,
     )
 
-    index_building_notification.content = "Index built!"
-    await index_building_notification.send()
+    index_building_message.content = "Index built!"
+    await index_building_message.send()
 
     # set up search pulze docs retriever tool
     docs_retriever_tool = create_retriever_tool(
