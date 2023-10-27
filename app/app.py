@@ -2,6 +2,8 @@ import chainlit as cl
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent, create_retriever_tool
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.embeddings import CacheBackedEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
