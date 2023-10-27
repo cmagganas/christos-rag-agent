@@ -1,14 +1,7 @@
 import chainlit as cl
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent, create_retriever_tool
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.document_loaders.csv_loader import CSVLoader
-from langchain.embeddings import CacheBackedEmbeddings, OpenAIEmbeddings
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma #, FAISS
-from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
-from langchain.storage import LocalFileStore
+from langchain.embeddings import CacheBackedEmbeddings
 from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
@@ -16,7 +9,7 @@ from langchain.prompts.chat import (
 )
 
 from build_langchain_vector_store import chunk_docs, load_gitbook_docs, tiktoken_len
-from tiktoken import Encoding, encoding_for_model
+from tiktoken import encoding_for_model
 
 import openai
 # import os
@@ -40,7 +33,7 @@ async def initialize_chat():
     )
     
     embedding_model = OpenAIEmbeddings(model=embedding_model_identifier)
-    document_vector_store = Chroma.from_documents(
+    Chroma.from_documents(
         chunked_langchain_documents, embedding=embedding_model, persist_directory="langchain-chroma-pulze-docs"
     )
     read_vector_store = Chroma(
