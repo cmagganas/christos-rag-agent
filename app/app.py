@@ -25,52 +25,52 @@ import openai
 openai.api_base = 'https://api.openai.com/v1' # default
 
 @cl.on_chat_start
-async def init():
+async def initialize_chat():
     
-    msg = cl.Message(content="Building Index...")
-    await msg.send()
+    index_building_message = cl.Message(content="Building Index...")
+    await index_building_message.send()
     
-    docs_url = "https://docs.pulze.ai/"
-    embedding_model_name = "text-embedding-ada-002"
-    langchain_documents = load_gitbook_docs(docs_url)
+    documents_url = "https://docs.pulze.ai/"
+    embedding_model_identifier = "text-embedding-ada-002"
+    langchain_documents = load_gitbook_docs(documents_url)
     chunked_langchain_documents = chunk_docs(
         langchain_documents,
-        tokenizer=encoding_for_model(embedding_model_name),
+        tokenizer=encoding_for_model(embedding_model_identifier),
         chunk_size=200,
     )
     
-    embedding_model = OpenAIEmbeddings(model=embedding_model_name)
-    vector_store = Chroma.from_documents(
+    embedding_model = OpenAIEmbeddings(model=embedding_model_identifier)
+    document_vector_store = Chroma.from_documents(
         chunked_langchain_documents, embedding=embedding_model, persist_directory="langchain-chroma-pulze-docs"
     )
     read_vector_store = Chroma(
         persist_directory="langchain-chroma-pulze-docs", embedding_function=embedding_model
     )
     
-    msg.content = "Index built!"
-    await msg.send()
+    index_building_message.content = "Index built!"
+    await index_building_message.send()
     
     # set up search pulze docs retriever tool
-    tool = create_retriever_tool(
+    pulze_docs_retriever_tool = create_retriever_tool(
         read_vector_store.as_retriever(), 
         "search_pulze_docs",
         "Searches and returns documents regarding Pulze."
     )
-    tools = [tool]
+    retrieval_tools = [pulze_docs_retriever_tool]
 
     #set llm and agent
-    llm = ChatOpenAI(temperature = 0)
-    agent_executor = create_conversational_retrieval_agent(llm, tools, verbose=True)
+    chat_model = ChatOpenAI(temperature = 0)
+    agent_executor = create_conversational_retrieval_agent(chat_model, retrieval_tools, verbose=True)
 
     cl.user_session.set("agent_executor", agent_executor)
 
 @cl.on_message
-async def main(message):
-    chain = cl.user_session.get("agent_executor")
-    cb = cl.AsyncLangchainCallbackHandler(
+async def process_message(message):
+    agent_executor = cl.user_session.get("agent_executor")
+    callback_handler = cl.AsyncLangchainCallbackHandler(
         stream_final_answer=False, answer_prefix_tokens=["FINAL", "ANSWER"]
     )
-    cb.answer_reached = True
-    answer = chain({"input": message})
+    callback_handler.answer_reached = True
+    response = agent_executor({"input": message})
 
-    await cl.Message(content=answer["output"]).send()
+    await cl.Message(content=response["output"]).send()
