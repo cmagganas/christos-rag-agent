@@ -10,9 +10,6 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from tiktoken import encoding_for_model
 
-# import os
-
-# openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.api_base = "https://api.openai.com/v1"  # default
 
 
